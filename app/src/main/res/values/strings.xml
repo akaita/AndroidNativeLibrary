@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">NativeLibraryModule example</string>
+    <string name="btn_time">Get time from Native</string>
+</resources>

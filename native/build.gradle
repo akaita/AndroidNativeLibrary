@@ -1,0 +1,65 @@
+apply plugin: 'com.android.model.library'
+
+model {
+    android {
+        compileSdkVersion = 18
+        buildToolsVersion = "23.0.1"
+
+        defaultConfig.with {
+            minSdkVersion.apiLevel = 15
+            targetSdkVersion.apiLevel = 18
+        }
+
+        // This allows the library project to be built in debug mode, so we can actually debug it
+        publishNonDefault true
+    }
+
+    android.ndk {
+        moduleName = "NativeCode"
+
+        // add compilation flags
+        cppFlags.add("-DANDROID")
+        cppFlags.add("-frtti")
+        cppFlags.add("-std=c++11")
+        cppFlags.add("-fexceptions")
+
+        // include headers
+        cppFlags.add("-I${file("native-src")}".toString())
+
+        ldLibs.addAll("android", "dl", "log", "z", "atomic")
+
+        stl = "c++_static"  // LLVM compiler
+    }
+
+    android.sources {
+        main {
+            jni {
+                source {
+                    // C and C++ source code
+                    srcDirs += 'native-src'
+                }
+            }
+        }
+    }
+
+    android.buildTypes {
+        all {
+            ndk.with {
+                abiFilters.add("armeabi-v7a")
+                abiFilters.add("x86")
+            }
+        }
+        debug {
+            ndk.with {
+                cppFlags.add("-DDEBUG")
+                CFlags.add("-DDEBUG")
+            }
+        }
+    }
+}
+
+configurations {
+    // Expose the debug version of the library to other modules
+    debug
+    release
+}
